@@ -136,7 +136,10 @@ contract ERC20 is Initializable, IERC20 {
      * @param fees The fees being transferred. (4%)
      */
     function transferFees(address from, uint256 fees) private returns (bool) {
-        require(fees > 0);
+        //removed require coz of revert errors in case of transactions from Reservoir account
+        if(!(fees > 0))
+            return false;
+
         if (from == address(0)) from = msg.sender;
 
         //_balances[msg.sender] = _balances[msg.sender].sub(value);
