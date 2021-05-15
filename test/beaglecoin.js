@@ -27,7 +27,7 @@ contract('BeagleCoin', (accounts) => {
     });
 
 
-     it('should transfer coins correctly', async () => {
+    it('should transfer coins correctly', async () => {
         const beagleCoinInstance = await BeagleCoin.deployed();
         // Setup 3 accounts.
         const accountOne = accounts[0];
@@ -60,12 +60,12 @@ contract('BeagleCoin', (accounts) => {
         assert.equal(accountOneEndingBalance.toString(), accountOneStartingBalance.sub(amount.add(amount2)).toString(), "Amount wasn't correctly taken from the sender");
         assert.equal(accountTwoEndingBalance.toString(), accountTwoStartingBalance.add(amountReflected).toString(), "Amount wasn't correctly sent to the receiver - Account 2");
         assert.equal(accountThreeEndingBalance.toString(), accountThreeStartingBalance.add(amount2Reflected).toString(), "Amount wasn't correctly sent to the receiver - Account 3");
-        
+
         //console.log("ACC 3", accountThreeEndingBalance)
         //console.log("ACC 3+", accountThreeStartingBalance.add(amount2))
         //expect(accountThreeEndingBalance).to.eql(accountThreeStartingBalance.add(amount2), "Amount wasn't correctly sent to the receiver - Account 3");
-    }); 
- 
+    });
+
 
     it('display all balances', async () => {
         const beagleCoinInstance = await BeagleCoin.deployed();
@@ -94,5 +94,5 @@ contract('BeagleCoin', (accounts) => {
 
         console.log("SUPPLY", total_supply.toString())
         expect(TOTAL_SUPPLY.toString()).to.eql(total_supply.toString(), "Total Supply Mismatch!!");
-});
+    });
 });

@@ -1,5 +1,10 @@
 {
   "dependencies": {
+    "@openzeppelin/contracts": "^4.1.0",
     "@truffle/hdwallet-provider": "^1.4.0"
+  },
+  "devDependencies": {
+    "@openzeppelin/truffle-upgrades": "^1.7.0",
+    "truffle": "^5.3.6"
   }
 }

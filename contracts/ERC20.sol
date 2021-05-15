@@ -3,6 +3,7 @@ pragma solidity >=0.4.25 <0.9.0;
 
 import "./IERC20.sol";
 import "./SafeMath.sol";
+import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
 
 /**
  * @title Standard ERC20 token
@@ -12,7 +13,7 @@ import "./SafeMath.sol";
  * Originally based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
 
-contract ERC20 is IERC20 {
+contract ERC20 is Initializable, IERC20 {
     using SafeMath for uint256;
 
     mapping(address => uint256) _balances;
@@ -21,14 +22,16 @@ contract ERC20 is IERC20 {
 
     uint256 _totalSupply;
 
-    uint256 feesPercent = 4; //4 percent
+    uint256 feesPercent; //initialized in initialize func
 
     address private _owner;
     address private _pool;
 
-    constructor(address owner, address pool) public {
+    function initialize(address owner, address pool) public initializer {
         _owner = owner;
         _pool = pool;
+
+        feesPercent = 4; // 4 percent
     }
 
     /* constructor() public {
@@ -133,7 +136,7 @@ contract ERC20 is IERC20 {
      * @param fees The fees being transferred. (4%)
      */
     function transferFees(address from, uint256 fees) private returns (bool) {
-        require(fees != 0);
+        require(fees > 0);
         if (from == address(0)) from = msg.sender;
 
         //_balances[msg.sender] = _balances[msg.sender].sub(value);

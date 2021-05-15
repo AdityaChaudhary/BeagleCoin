@@ -2,7 +2,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 
 // 12-word mnemonic
-const mnemonicPhrase = "scan knock indicate extend maid thunder next bargain weather purity route double"; // 12 word mnemonic
+const mnemonicPhrase = "scan knock indicate extend maid thunder next bargain weather purity route double";
 
 
 module.exports = {
