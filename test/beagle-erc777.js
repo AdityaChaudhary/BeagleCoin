@@ -135,15 +135,86 @@ contract('BeagleCoin', function (accounts) {
             await this.token.transfer(accounts[2], holdings);
             let balanceA2 = await this.token.balanceOf(accounts[2]);
 
-            
-            await this.token.burn(holdings, web3.utils.asciiToHex("Burn Test"), { from: accounts[2] });
+
+            const web3Receipt = await this.token.burn(holdings, web3.utils.asciiToHex("Burn Test"), { from: accounts[2] });
+            expectEvent(web3Receipt, 'Burned');
+
             alanceA2 = await this.token.balanceOf(accounts[2]);
             //console.log(`Balance - old: ${balanceA2} | new: ${alanceA2}`);
-
             alanceA2.should.be.bignumber.equal(new BN(0), "Burn failed");
         });
 
+        it('checks permission before buring pool', async function () {
+            await this.token.transfer(poolAddr, new BN(10000), { from: creator });
+
+            let poolBalance = await this.token.balanceOf(poolAddr);
+            //console.log("Pool Balance", poolBalance.toString());
+
+            await expectRevert(this.token.burnPool(poolBalance, web3.utils.asciiToHex("Pool Burn Test"), { from: accounts[2] }),
+                'BEAGLE: Only allowed by the Owner',
+            );
+
+            let poolBalanceAfterBurn = await this.token.balanceOf(poolAddr);
+            //console.log("Pool Balance b/a", poolBalance.toString(), poolBalanceAfterBurn.toString());
+            poolBalanceAfterBurn.should.be.bignumber.not.equal(new BN(0), "Pool Burn permission check failed. Zero balance now.");
+
+            /**
+             * Burn pool again as owner
+             */
+            const web3Receipt = await this.token.burnPool(poolBalance, web3.utils.asciiToHex("Pool Burn Test"), { from: creator });
+            expectEvent(web3Receipt, 'Burned');
+
+            poolBalanceAfterBurn = await this.token.balanceOf(poolAddr);
+            //console.log("Pool Balance b/a", poolBalance.toString(), poolBalanceAfterBurn.toString());
+            poolBalanceAfterBurn.should.be.bignumber.equal(new BN(0), "Pool Burn permission check failed. Zero balance now.");
+        });
+
     });
+
+    describe('Updates & Transfers', function () {
+        it('reverts - when someone tries to update the ownership', async function () {
+            await expectRevert(this.token.tranferOwnership(accounts[2], { from: accounts[1] }),
+                'BEAGLE: Only allowed by the Owner',
+            );
+        });
+
+        it('transfers owership when requested by owner only', async function () {
+
+
+            let ownership = await this.token.owner();
+
+            //console.log("OWnership", ownership);
+
+            await this.token.tranferOwnership(accounts[2], { from: creator });
+
+            let ownershipAfter = await this.token.owner();
+
+            ownershipAfter.should.be.not.equal(ownership, "Ownership accouts are still same. Something is wrong.")
+            ownershipAfter.should.be.equal(accounts[2], "Ownership accouts are still same. Something is wrong.")
+
+            //console.log("OWnershipAfter", ownershipAfter);
+        });
+
+        it('reverts - when someone tries to update the fees', async function () {
+            await expectRevert(this.token.feesUpdate(new BN(10), { from: accounts[1] }),
+                'BEAGLE: Only allowed by the Owner',
+            );
+        });
+
+        it('updates fees when requested by owner only', async function () {
+            let oldFees = await this.token.fees();
+            let feesUpdateValue = new BN(10);
+            
+            const web3Receipt = await this.token.feesUpdate(feesUpdateValue, { from: creator });
+
+            let newFees = await this.token.fees();
+            //console.log("Fees", oldFees.toString(), newFees.toString());
+            expectEvent(web3Receipt, 'FeesUpdate');
+
+            newFees.should.be.bignumber.equal(feesUpdateValue, "Fees not updated properly.");
+        });
+    });
+
 
     describe('Transfer', function () {
         it('reverts - when the owner is the zero address', async function () {

@@ -3,4 +3,10 @@ test/.placeholder
 build
 node_modules
 blockchain
-.openzeppelin
+
+# Configuration being sensitive is not commited
+config
+
+# OpenZeppelin 
+# Commited all n/w except development
+.openzeppelin/unknown-*.json

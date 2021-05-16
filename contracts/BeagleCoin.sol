@@ -3,11 +3,27 @@ pragma solidity >=0.5.0 <0.9.0;
 
 //import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC777/ERC777Upgradeable.sol";
+
 //import "@openzeppelin/contracts/token/ERC777/ERC777.sol";
 
 //import "./SafeMath.sol";
 
-contract BeagleCoin is ERC777Upgradeable {
+interface CustomEvents {
+    /**
+     * @dev Event to be emitted when fees is updated
+     * @param operator Caller - msg.sender (owner)
+     * @param from previous fees
+     * @param to new fees
+     */
+    event FeesUpdate(
+        address indexed operator,
+        uint256 from,
+        uint256 to,
+        bytes data
+    );
+}
+
+contract BeagleCoin is ERC777Upgradeable, CustomEvents {
     /* Public variables of the token */
     //string private _name; //fancy name: eg Simon Bucks
     //uint8 private _decimals; //How many decimals to show. ie. There could 1000 base units with 3 decimals. Meaning 0.980 SBX = 980 base units. It's like comparing 1 wei to 1 ether.
@@ -17,7 +33,7 @@ contract BeagleCoin is ERC777Upgradeable {
 
     address private _poolAddr;
 
-    uint256 _feesPercent;
+    uint256 private _feesPercent;
 
     //donation account - account where 2% of transaction token goes
     //gas account - 1% of trasaction token goes
@@ -53,13 +69,17 @@ contract BeagleCoin is ERC777Upgradeable {
         return _poolAddr;
     }
 
+    function fees() public view onlyOwner returns (uint256) {
+        return _feesPercent;
+    }
+
     modifier onlyOwner {
         require(_msgSender() == owner(), "BEAGLE: Only allowed by the Owner");
         _;
     }
 
     modifier onlyPoolAccount(address account) {
-        require(account == _poolAddr);
+        require(account == _poolAddr, "BEAGLE: Only Pool Address allowed");
         _;
     }
 
@@ -76,15 +96,37 @@ contract BeagleCoin is ERC777Upgradeable {
     /**
      * @dev [OnlyOwner - can call this] [onlyPoolAccount - burn address can only be poolAddr]
      * PoolBurn - Burns token from callers account
-     * @param account The address to burn the tokens from
      * @param amount Amounts to tokens to burn
      */
-    function burnPool(address account, uint256 amount)
-        public
-        onlyOwner
-        onlyPoolAccount(account)
-    {
-        super._burn(account, amount, "", "");
+    function burnPool(uint256 amount, bytes memory data) public onlyOwner {
+        super._burn(_poolAddr, amount, data, "");
+    }
+
+    /**
+     * @dev Transfer ownership of the contract to another account.
+     * Not this will not tranfer the contract ownership, but the logical ownership to perform miniting and burning.
+     * @param newOwner The address to assign the new Ownership to
+     */
+    function tranferOwnership(address newOwner) public onlyOwner {
+        _owner = newOwner;
+    }
+
+    /**
+     * @dev Change the Migration Pool to another address.
+     * @param newPool The address to transfer the pool fees from hereonforth.
+     */
+    function feesPoolMigrate(address newPool) public onlyOwner {
+        _poolAddr = newPool;
+    }
+
+    /**
+     * @dev Update the fees percentage.
+     * @param newPercentage The new pool fees percentage.
+     */
+    function feesUpdate(uint256 newPercentage) public onlyOwner {
+        emit FeesUpdate(_msgSender(), _feesPercent, newPercentage, "FeesUpdate");
+
+        _feesPercent = newPercentage;
     }
 
     // removed custom burn, everyone is allowed to burn their assets

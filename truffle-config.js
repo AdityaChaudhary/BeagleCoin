@@ -3,7 +3,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 require('./utils/dotenv').configImport();
 
-const { ALCHEMY_API_URL, MNEMONIC, PRIVATE_KEY } = process.env;
+const { ALCHEMY_API_URL, INFURA_API_KEY, MNEMONIC, PRIVATE_KEY } = process.env;
 
 console.log("CONFIG", ALCHEMY_API_URL, MNEMONIC);
 
@@ -21,7 +21,7 @@ module.exports = {
   //
   compilers: {
     solc: {
-      version: "^0.8.0", // A version or constraint - Ex. "^0.5.0"
+      version: "^0.8.4", // A version or constraint - Ex. "^0.5.0"
       // Can also be set to "native" to use a native solc
       parser: "solcjs",  // Leverages solc-js purely for speedy parsing
       settings: {
@@ -50,7 +50,7 @@ module.exports = {
       provider: function () {
         return new HDWalletProvider({
           privateKeys: [PRIVATE_KEY],
-          providerOrUrl: ALCHEMY_API_URL
+          providerOrUrl: INFURA_API_KEY
         })
       },
       network_id: '3',
