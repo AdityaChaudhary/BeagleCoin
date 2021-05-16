@@ -3,7 +3,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 require('./utils/dotenv').configImport();
 
-const { ALCHEMY_API_URL, INFURA_API_KEY, MNEMONIC, PRIVATE_KEY } = process.env;
+const { ALCHEMY_API_URL, INFURA_API_KEY, MNEMONIC, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 
 console.log("CONFIG", ALCHEMY_API_URL, MNEMONIC);
 
@@ -56,6 +56,13 @@ module.exports = {
       network_id: '3',
       gas: 4000000 //4M is the max
     },
+  },
+  plugins: [
+    'truffle-plugin-verify'
+  ],
+  api_keys: {
+    etherscan: ETHERSCAN_API_KEY
   }
+
 
 };
