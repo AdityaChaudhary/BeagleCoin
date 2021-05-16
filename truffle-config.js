@@ -1,8 +1,15 @@
+
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+
+require('./utils/dotenv').configImport();
+
+const { ALCHEMY_API_URL, MNEMONIC, PRIVATE_KEY } = process.env;
+
+console.log("CONFIG", ALCHEMY_API_URL, MNEMONIC);
 
 
 // 12-word mnemonic
-const mnemonicPhrase = "scan knock indicate extend maid thunder next bargain weather purity route double";
+//const mnemonicPhrase = process.env.MNEMONIC_PHRASE;
 
 
 module.exports = {
@@ -15,14 +22,14 @@ module.exports = {
   compilers: {
     solc: {
       version: "^0.8.0", // A version or constraint - Ex. "^0.5.0"
-                         // Can also be set to "native" to use a native solc
+      // Can also be set to "native" to use a native solc
       parser: "solcjs",  // Leverages solc-js purely for speedy parsing
-      /* settings: {
+      settings: {
         optimizer: {
           enabled: true,
           runs: 200   // Optimize for how many times you intend to run the code
         },
-      }, */
+      },
     }
   },
   networks: {
@@ -30,7 +37,7 @@ module.exports = {
       host: "127.0.0.1",
       port: 8545,
       /* provider: function () {
-        return new HDWalletProvider(mnemonicPhrase, "ws://127.0.0.1:7545/");
+        return new HDWalletProvider(MNEMONIC, "ws://127.0.0.1:7545/");
       }, */
       network_id: "*"
     },
@@ -40,10 +47,14 @@ module.exports = {
       network_id: "*"
     },
     ropsten: {
-      provider: function() {
-        return new HDWalletProvider(mnemonicPhrase, "https://ropsten.infura.io/v3/86af9f2405214f71a338b0035df5a074");
+      provider: function () {
+        return new HDWalletProvider({
+          privateKeys: [PRIVATE_KEY],
+          providerOrUrl: ALCHEMY_API_URL
+        })
       },
       network_id: '3',
+      gas: 4000000 //4M is the max
     },
   }
 
