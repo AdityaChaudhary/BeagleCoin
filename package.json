@@ -1,10 +1,14 @@
 {
   "dependencies": {
     "@openzeppelin/contracts": "^4.1.0",
+    "@openzeppelin/contracts-upgradeable": "^4.1.0",
     "@truffle/hdwallet-provider": "^1.4.0"
   },
   "devDependencies": {
+    "@openzeppelin/test-environment": "^0.1.9",
+    "@openzeppelin/test-helpers": "^0.5.11",
     "@openzeppelin/truffle-upgrades": "^1.7.0",
+    "chai-bn": "^0.2.1",
     "truffle": "^5.3.6"
   }
 }

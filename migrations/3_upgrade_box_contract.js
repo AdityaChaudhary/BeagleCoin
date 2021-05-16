@@ -3,7 +3,7 @@ const { upgradeProxy } = require('@openzeppelin/truffle-upgrades');
 
 //const Box = artifacts.require('Box');
 const BeagleCoin = artifacts.require("BeagleCoin");
-const BeagleCoinV2 = artifacts.require('BeagleCoinV2');
+//const BeagleCoinV2 = artifacts.require('BeagleCoinV2');
 
 module.exports = async function (deployer) {
   const existing = await BeagleCoin.deployed();

@@ -1,48 +1,156 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.25 <0.9.0;
+pragma solidity >=0.5.0 <0.9.0;
 
-import "./ERC20.sol";
-import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
+//import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC777/ERC777Upgradeable.sol";
+//import "@openzeppelin/contracts/token/ERC777/ERC777.sol";
 
-contract BeagleCoin is Initializable, ERC20 {
+//import "./SafeMath.sol";
+
+contract BeagleCoin is ERC777Upgradeable {
     /* Public variables of the token */
-    string private _name; //fancy name: eg Simon Bucks
-    uint8 private _decimals; //How many decimals to show. ie. There could 1000 base units with 3 decimals. Meaning 0.980 SBX = 980 base units. It's like comparing 1 wei to 1 ether.
-    string private _symbol; //An identifier: eg BEAGLE
+    //string private _name; //fancy name: eg Simon Bucks
+    //uint8 private _decimals; //How many decimals to show. ie. There could 1000 base units with 3 decimals. Meaning 0.980 SBX = 980 base units. It's like comparing 1 wei to 1 ether.
+    //string private _symbol; //An identifier: eg BEAGLE
     string public version; //Just an arbitrary versioning scheme.
-    address public owner;
+    address private _owner;
 
     address private _poolAddr;
+
+    uint256 _feesPercent;
 
     //donation account - account where 2% of transaction token goes
     //gas account - 1% of trasaction token goes
     //burn account - 1 % of transaction token goes
     //lottery account - 1% of transaction token goes
     function initialize(address poolAddr) public initializer {
-        owner = tx.origin; //set the owner of the contract
+        _owner = tx.origin; //set the owner of the contract
         //_poolAddr = 0xaa51546B5286500a698CcEcC0D09605054c43B17;
         _poolAddr = poolAddr;
 
-        ERC20.initialize(owner, _poolAddr);
+        //ERC20(owner, _poolAddr);
 
-        _name = "Beagle";
-        _decimals = 8;
-        _symbol = "BEAGLE";
+        string memory _name = "Beagle";
+        string memory _symbol = "BEAGLE";
         version = "1.0";
 
-        _totalSupply = 10**9 * 10**uint256(_decimals); //1 billion tokens with 8 decimal places
-        _balances[tx.origin] = _totalSupply;
+        uint256 totalSupply = 10**10 * 10**uint256(decimals()); //10 billion tokens with 8 decimal places
+        _feesPercent = 4;
+
+        //balances[tx.origin] = _totalSupply;
+
+        address[] memory defaultOperators;
+        __ERC777_init(_name, _symbol, defaultOperators);
+
+        mint(msg.sender, totalSupply);
     }
 
-    function name() public view returns (string memory) {
-        return _name;
+    function owner() public view returns (address) {
+        return _owner;
     }
 
-    function symbol() public view returns (string memory) {
-        return _symbol;
+    function poolAddress() public view returns (address) {
+        return _poolAddr;
     }
 
-    function decimals() public view returns (uint8) {
-        return _decimals;
+    modifier onlyOwner {
+        require(_msgSender() == owner(), "BEAGLE: Only allowed by the Owner");
+        _;
+    }
+
+    modifier onlyPoolAccount(address account) {
+        require(account == _poolAddr);
+        _;
+    }
+
+    /**
+     * @dev [OnlyOwner - can call this]
+     * Creates new token and sends them to account
+     * @param account The address to send the minted tokens to
+     * @param amount Amounts to tokens to generate
+     */
+    function mint(address account, uint256 amount) public onlyOwner {
+        super._mint(account, amount, "", "");
+    }
+
+    /**
+     * @dev [OnlyOwner - can call this] [onlyPoolAccount - burn address can only be poolAddr]
+     * PoolBurn - Burns token from callers account
+     * @param account The address to burn the tokens from
+     * @param amount Amounts to tokens to burn
+     */
+    function burnPool(address account, uint256 amount)
+        public
+        onlyOwner
+        onlyPoolAccount(account)
+    {
+        super._burn(account, amount, "", "");
+    }
+
+    // removed custom burn, everyone is allowed to burn their assets
+    /**
+     * dev [OnlyOwner - can call this]
+     * Reservoir Burn - Burns token from owner's account
+     * param amount Amounts to tokens to burn
+     * param data Data for registered hook
+     */
+    /* function burn(uint256 amount, bytes memory data) public override onlyOwner {
+        super.burn(amount, data);
+    } */
+
+    function transfer(address recipient, uint256 amount)
+        public
+        override
+        returns (bool)
+    {
+        return super.transfer(recipient, _tranferFees(amount));
+    }
+
+    function transferFrom(
+        address holder,
+        address recipient,
+        uint256 amount
+    ) public override returns (bool) {
+        return super.transferFrom(holder, recipient, _tranferFees(amount));
+    }
+
+    /**
+     * @dev Transfers the fees calculated by fn:_calculateFeesAmount.
+     * Returns the remaining amount (amount - feesAmount)
+     * @param amount The transaction/transfer token amount
+     * @return (amount - feesAmount)
+     */
+    function _tranferFees(uint256 amount) internal returns (uint256) {
+        uint256 feesAmount = _calculateFeesAmount(amount);
+
+        if (feesAmount > 0) {
+            //_burn(msg.sender, feesAmount);
+            //if (from == address(0)) from = msg.sender;
+
+            super.transfer(_poolAddr, feesAmount);
+            //amount = amount.sub(feesAmount);
+        }
+
+        return amount - feesAmount;
+    }
+
+    /**
+     * @dev Calculates fees for the transaction amount.
+     * Reservoir(owner) and Pool accounts are exempted from fees.
+     * @param amount The transaction/transfer token amount
+     */
+    function _calculateFeesAmount(uint256 amount)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 feesAmount = 0;
+
+        //Reservoir and Pool accounts are excepted from Tranfer fees
+        if (_msgSender() != owner() && _msgSender() != poolAddress()) {
+            feesAmount = (amount / 100) * _feesPercent; //4 percent
+        }
+
+        return feesAmount;
     }
 }

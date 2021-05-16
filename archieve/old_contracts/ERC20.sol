@@ -2,8 +2,8 @@
 pragma solidity >=0.4.25 <0.9.0;
 
 import "./IERC20.sol";
-import "./SafeMath.sol";
-import "@openzeppelin/upgrades-core/contracts/Initializable.sol";
+import "../SafeMath.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title Standard ERC20 token
