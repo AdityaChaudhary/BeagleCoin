@@ -1,9 +1,11 @@
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+var web3 = require('web3');
+
 
 require('./utils/dotenv').configImport();
 
-const { ALCHEMY_API_URL, INFURA_API_KEY, MNEMONIC, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
+const { ALCHEMY_API_URL, INFURA_API_URL, MNEMONIC, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 
 console.log("CONFIG", ALCHEMY_API_URL, MNEMONIC);
 
@@ -50,16 +52,21 @@ module.exports = {
       provider: function () {
         return new HDWalletProvider({
           privateKeys: [PRIVATE_KEY],
-          providerOrUrl: INFURA_API_KEY
+          providerOrUrl: INFURA_API_URL
         })
       },
       network_id: '3',
-      gas: 4000000 //4M is the max
+      gas: 4000000, //4M is the max
+      gasPrice: web3.utils.toWei("100", "gwei"),
     },
   },
   plugins: [
     'truffle-plugin-verify'
   ],
+  mocha: {
+    reporter: 'eth-gas-reporter',
+    reporterOptions: { excludeContracts: ['Migrations'] }
+  },
   api_keys: {
     etherscan: ETHERSCAN_API_KEY
   }

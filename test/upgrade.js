@@ -31,7 +31,8 @@ const BeagleCoinV2 = artifacts.require("BeagleCoin");
   }); */
 
 describe('Upgrade', function () {
-    it('works before and after upgrading', async function () {
+    /* it('works before and after upgrading', async function () {
+        return;
         // Deploy V1 and set initial value
         const instance = await deployProxy(BeagleCoin, ["0xaa51546B5286500a698CcEcC0D09605054c43B17"]);
         assert.strictEqual(await instance.poolAddress(), "0xaa51546B5286500a698CcEcC0D09605054c43B17");
@@ -42,14 +43,14 @@ describe('Upgrade', function () {
         await upgradeProxy(instance.address, BeagleCoinV2);
         assert.strictEqual(await instance.poolAddress(), "0xaa51546B5286500a698CcEcC0D09605054c43B17");
         //console.log("ADD /a", await instance.poolAddress())
-    });
+    }); */
 
 
     /**
      * @dev add tests later for the upgraded functionality (if an upgrade comes in the future)
      */
-    it('new functionality works', async function () {
+    /* it('new functionality works', async function () {
         //todo-me add tests later for upgrade functionality
     });
-
+ */
 });

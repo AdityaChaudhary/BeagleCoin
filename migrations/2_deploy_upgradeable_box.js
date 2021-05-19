@@ -1,5 +1,5 @@
 // migrations/NN_deploy_upgradeable_box.js
-const { deployProxy } = require('@openzeppelin/truffle-upgrades');
+//const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 const path = require('path');
 
 require('@openzeppelin/test-helpers/configure')({
@@ -24,6 +24,7 @@ module.exports = async function (deployer, network, accounts) {
     await singletons.ERC1820Registry(accounts[0]);
   }
 
-  const instance = await deployProxy(BeagleCoin, [process.env.POOL_ADDRESS], { deployer });
-  console.log('Deployed', instance.address);
+  const instance = await deployer.deploy(BeagleCoin);
+  //const instance = await deployProxy(BeagleCoin, [process.env.POOL_ADDRESS], { deployer });
+  //console.log('Deployed', instance.address);
 };
