@@ -2,10 +2,10 @@
 //const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 const path = require('path');
 
-require('@openzeppelin/test-helpers/configure')({
+/* require('@openzeppelin/test-helpers/configure')({
   provider: web3.currentProvider,
   environment: 'truffle'
-});
+}); */
 
 const { singletons } = require('@openzeppelin/test-helpers');
 
@@ -23,6 +23,7 @@ module.exports = async function (deployer, network, accounts) {
   if (network === 'development' || network === 'test') {
     await singletons.ERC1820Registry(accounts[0]);
   }
+
 
   const instance = await deployer.deploy(BeagleCoin);
   //const instance = await deployProxy(BeagleCoin, [process.env.POOL_ADDRESS], { deployer });
