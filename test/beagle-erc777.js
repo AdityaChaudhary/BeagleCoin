@@ -61,7 +61,7 @@ contract('BeagleCoin', function (accounts) {
 
         });
 
-        it('has a name: Beagle', async function () {
+        it('has a name: Beagle Inu', async function () {
             let name = await this.token.name.call();
             //console.log("Token Name", name);
             (await this.token.name()).should.equal('Beagle Inu');

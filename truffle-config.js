@@ -59,6 +59,17 @@ module.exports = {
       gas: 4000000, //4M is the max
       gasPrice: web3.utils.toWei("100", "gwei"),
     },
+    mainnet: {
+      provider: function () {
+        return new HDWalletProvider({
+          privateKeys: [PRIVATE_KEY],
+          providerOrUrl: INFURA_API_URL
+        })
+      },
+      network_id: '1',
+      gas: 4000000, //4M is the max
+      gasPrice: web3.utils.toWei("80", "gwei"),
+    },
   },
   plugins: [
     'truffle-plugin-verify'
